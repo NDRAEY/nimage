@@ -11,7 +11,7 @@ fn main() {
     let data = std::fs::read(filename.unwrap()).unwrap();
 
     let mut image = nimage::tga::from_tga_data(data.as_slice()).unwrap();
-    image.scale_by_factor(0.5);
+    image.rotate_left();
 
     println!("{}x{}", image.width(), image.height());
     

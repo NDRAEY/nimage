@@ -22,7 +22,7 @@ pub struct Image {
     width: usize,
     height: usize,
     pixel_format: PixelFormat,
-    data: Vec<u8>,
+    pub(crate) data: Vec<u8>,
 }
 
 impl Image {
@@ -343,5 +343,57 @@ impl Image {
         let h = self.height() as f64 * factor;
 
         self.scale(w.ceil() as _, h.ceil() as _);
+    }
+
+    fn get_column(&self, column: usize) -> Option<Vec<u8>> {
+        if column >= self.width {
+            return None;
+        }
+
+        let bpp = Self::pixfmt_to_bpp(self.pixel_format);
+
+        let mut result: Vec<u8> = vec![];
+
+        for y in 0..self.height {
+            let color = self.get_pixel(column, y).unwrap();
+            let channels = Self::universal_to_preferred(self.pixel_format, color);
+
+            result.extend(&channels[..bpp]);
+        }
+
+        Some(result)
+    }
+    
+    pub fn rotate_left(&mut self) {
+        let mut buffer: Vec<u8> = Vec::with_capacity(self.size());
+
+        for x in (0..self.width()).rev() {
+            let column = self.get_column(x).unwrap();
+
+            buffer.extend(column);
+        }
+
+        (self.width, self.height) = (self.height, self.width);
+
+        self.data = buffer;
+    }
+
+    pub fn rotate_right(&mut self) {
+        let mut buffer: Vec<u8> = Vec::with_capacity(self.size());
+
+        for x in (0..self.width()) {
+            let column = self.get_column(x).unwrap();
+            let column = column.chunks(self.bytes_per_pixel()).rev();
+
+            for i in column {
+                buffer.extend(i);
+            }
+        }
+
+        (self.width, self.height) = (self.height, self.width);
+
+        self.data = buffer;
+
+        // self.flip_horizontally();
     }
 }

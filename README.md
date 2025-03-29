@@ -12,3 +12,5 @@ It's no_std compatible, but still depends on `alloc`.
 - [x] Drawing and getting pixels on image
 - [x] Resizing images (bilinear algorithm)
 - [x] Flipping images vertically and horizontally
+- [x] Rotating images (by 90 deg, left and right)
+- [x] Cutting (cropping) images
