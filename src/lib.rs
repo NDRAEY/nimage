@@ -1,3 +1,6 @@
+#[cfg(feature = "tga")]
+pub mod tga;
+
 #[derive(Copy, Clone)]
 pub enum PixelFormat {
     RGBA,
