@@ -1,15 +1,20 @@
 use std::io::Write;
 
-static IMAGE_DATA: &[u8] = include_bytes!("../static/abstract.tga");
-
 fn main() {
-    // let mut image = nimage::Image::from_raw_data(IMAGE_DATA, 320, 240, nimage::PixelFormat::RGB);
-    let mut image = nimage::tga::from_tga_data(IMAGE_DATA).unwrap();
+    let filename = std::env::args().skip(1).last();
+
+    if filename.is_none() {
+        eprintln!("No arguments!");
+        std::process::exit(1);
+    }
+
+    let data = std::fs::read(filename.unwrap()).unwrap();
+
+    let mut image = nimage::tga::from_tga_data(data.as_slice()).unwrap();
+    image.scale_by_factor(0.5);
 
     println!("{}x{}", image.width(), image.height());
-
-    image.scale(640, 480);
-
+    
     {
         let mut file = std::fs::File::create("out.bin").unwrap();
 

@@ -1,5 +1,5 @@
 use tinytga::Bpp::{Bits24, Bits32};
-use tinytga::RawTga;
+use tinytga::{ImageOrigin, RawTga};
 
 use crate::{Image, PixelFormat};
 
@@ -25,7 +25,7 @@ pub fn from_tga_data(data: &[u8]) -> Option<Image> {
                 }
             }
 
-            Some(Image {
+            let mut out = Image {
                 width: image.size().width as usize,
                 height: image.size().height as usize,
                 pixel_format: if image.image_data_bpp() == Bits32 {
@@ -34,7 +34,17 @@ pub fn from_tga_data(data: &[u8]) -> Option<Image> {
                     PixelFormat::RGB
                 },
                 data: pixels,
-            })
+            };
+
+            match image.image_origin() {
+                ImageOrigin::TopLeft => {},
+                ImageOrigin::BottomLeft => {
+                    out.flip_vertically();
+                }
+                _ => todo!("Implement image translation for `{:?}`", image.image_origin())
+            }
+
+            Some(out)
         }
         Err(_) => None,
     }

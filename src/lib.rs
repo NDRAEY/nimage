@@ -26,6 +26,12 @@ pub struct Image {
 }
 
 impl Image {
+    pub fn new(width: usize, height: usize, pixfmt: PixelFormat) -> Self {
+        Self {
+            width, height, pixel_format: pixfmt, data: vec![0u8; width * height * Self::pixfmt_to_bpp(pixfmt)]
+        }
+    }
+
     fn pixfmt_to_bpp(pixfmt: PixelFormat) -> usize {
         match pixfmt {
             PixelFormat::RGBA => 4,
@@ -139,6 +145,17 @@ impl Image {
             height,
             data,
             pixel_format,
+        }
+    }
+
+    /// Fills whole image with given color
+    /// 
+    /// Color in `0xAARRGGBB` format
+    pub fn fill(&mut self, color: u32) {
+        for y in 0..self.height {
+            for x in 0..self.width {
+                self.set_pixel(x, y, color);
+            }
         }
     }
 
@@ -305,5 +322,26 @@ impl Image {
         for i in 0..self.height() {
             self.reverse_line(i);
         }
+    }
+
+    pub fn cut(&mut self, x: usize, y: usize, width: usize, height: usize) {
+        let mut new_image = Image::new(width, height, self.pixel_format);
+
+        for oy in 0..height {
+            for ox in 0..width {
+                let color = self.get_pixel(x + ox, y + oy);
+
+                new_image.set_pixel(ox, oy, color.unwrap_or(0));
+            }
+        }
+
+        *self = new_image;
+    }
+
+    pub fn scale_by_factor(&mut self, factor: f64) {
+        let w = self.width() as f64 * factor;
+        let h = self.height() as f64 * factor;
+
+        self.scale(w.ceil() as _, h.ceil() as _);
     }
 }
