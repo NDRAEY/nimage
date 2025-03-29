@@ -1,5 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+extern crate alloc;
+use alloc::vec;
+use alloc::vec::Vec;
+use alloc::string::String;
+
 #[cfg(feature = "tga")]
 pub mod tga;
 
@@ -237,10 +242,10 @@ impl Image {
                 let src_x = (x as f32) * (self.width as f32 - 1.0) / (target_width as f32 - 1.0);
                 let src_y = (y as f32) * (self.height as f32 - 1.0) / (target_height as f32 - 1.0);
 
-                let x0 = src_x.floor() as usize;
-                let y0 = src_y.floor() as usize;
-                let x1 = (src_x.ceil() as usize).min(self.width - 1);
-                let y1 = (src_y.ceil() as usize).min(self.height - 1);
+                let x0 = src_x/*.floor()*/ as usize;
+                let y0 = src_y/*.floor()*/ as usize;
+                let x1 = (src_x/*.ceil()*/ as usize).min(self.width - 1);
+                let y1 = (src_y/*.ceil()*/ as usize).min(self.height - 1);
 
                 let x_weight = src_x - x0 as f32;
                 let y_weight = src_y - y0 as f32;
@@ -262,7 +267,7 @@ impl Image {
                     let value = top * (1.0 - y_weight) + bottom * y_weight;
 
                     scaled_data[Self::pixel_index(target_width, x, y) * bpp + c] =
-                        value.round() as u8;
+                        value/*.round()*/ as u8;
                 }
             }
         }
@@ -342,7 +347,7 @@ impl Image {
         let w = self.width() as f64 * factor;
         let h = self.height() as f64 * factor;
 
-        self.scale(w.ceil() as _, h.ceil() as _);
+        self.scale(w as _, h as _);
     }
 
     fn get_column(&self, column: usize) -> Option<Vec<u8>> {
