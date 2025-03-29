@@ -3,7 +3,6 @@
 extern crate alloc;
 use alloc::vec;
 use alloc::vec::Vec;
-use alloc::string::String;
 
 #[cfg(feature = "tga")]
 pub mod tga;

@@ -1,3 +1,5 @@
+use alloc::vec::Vec;
+
 use tinytga::Bpp::Bits32;
 use tinytga::{ImageOrigin, RawTga};
 
