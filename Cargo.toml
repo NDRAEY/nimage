@@ -1,0 +1,8 @@
+[package]
+name = "nimage"
+description = "A simple imaging library"
+version = "0.1.0"
+edition = "2024"
+authors = ["NDRAEY <pikachu_andrey@vk.com>"]
+
+[dependencies]
