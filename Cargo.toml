@@ -8,6 +8,7 @@ license = "MIT"
 repository = "https://github.com/NDRAEY/nimage"
 categories = ["graphics", "multimedia", "no-std"]
 keywords = ["canvas", "image", "no_std"]
+exclude = ["static/*"]
 
 [features]
 default = ["tga", "std"]
