@@ -381,7 +381,7 @@ impl Image {
     pub fn rotate_right(&mut self) {
         let mut buffer: Vec<u8> = Vec::with_capacity(self.size());
 
-        for x in (0..self.width()) {
+        for x in 0..self.width() {
             let column = self.get_column(x).unwrap();
             let column = column.chunks(self.bytes_per_pixel()).rev();
 
