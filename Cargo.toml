@@ -6,7 +6,8 @@ edition = "2024"
 authors = ["NDRAEY <pikachu_andrey@vk.com>"]
 
 [features]
-default = ["tga"]
+default = ["tga", "std"]
+std = []
 tga = ["dep:tinytga"]
 
 [dependencies]
