@@ -1,3 +1,5 @@
+/// This module provides functions to work with TGA images.
+
 use alloc::vec::Vec;
 
 use tinytga::Bpp::Bits32;
@@ -5,6 +7,9 @@ use tinytga::{ImageOrigin, RawTga};
 
 use crate::{Image, PixelFormat};
 
+/// Make an image out of raw TGA data.
+///
+/// `None` is returned if any error is present
 pub fn from_tga_data(data: &[u8]) -> Option<Image> {
     let im = RawTga::from_slice(data);
 
