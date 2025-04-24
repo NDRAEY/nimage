@@ -10,6 +10,9 @@ pub mod tga;
 #[cfg(feature = "png")]
 pub mod png;
 
+pub mod import;
+
+/// An enumeration of supported pixel formats.
 #[derive(Copy, Clone)]
 pub enum PixelFormat {
     RGBA,
@@ -20,10 +23,13 @@ pub enum PixelFormat {
     BGR,
 }
 
+/// A structure that describes how to shift channels to get universal format `0xAARRGGBB`
 pub struct PixelFormatOffset {
     r: usize, g: usize, b: usize, a: Option<usize>
 }
 
+/// A main structure of the crate.
+/// Descibes image's width and height, and pixel format, also contains modifyable data.
 #[derive(Clone)]
 pub struct Image {
     width: usize,
@@ -33,12 +39,14 @@ pub struct Image {
 }
 
 impl Image {
+	/// Create completely empty image with desired width, height, and pixel format.
     pub fn new(width: usize, height: usize, pixfmt: PixelFormat) -> Self {
         Self {
             width, height, pixel_format: pixfmt, data: vec![0u8; width * height * Self::pixfmt_to_bpp(pixfmt)]
         }
     }
 
+	/// Converts pixel format to channel count
     fn pixfmt_to_bpp(pixfmt: PixelFormat) -> usize {
         match pixfmt {
             PixelFormat::RGBA => 4,
@@ -51,6 +59,8 @@ impl Image {
         }
     }
 
+	/// Generates offsets for desired pixel format.
+	/// It's used to build an universal colors from image data.
     /// To convert to `0xAARRGGBB`
     fn pixfmt_to_offset(pixfmt: PixelFormat) -> PixelFormatOffset {
         match pixfmt {
@@ -87,6 +97,7 @@ impl Image {
         }
     }
 
+	/// Converts pixel color data to universal color.
     fn convert_to_universal(pixfmt: PixelFormat, color: &[u8]) -> u32 {
         let pxo = Self::pixfmt_to_offset(pixfmt);
 
@@ -103,7 +114,7 @@ impl Image {
         outcolor
     }
 
-    /// Universal color has `0xAARRGGBB` format
+	/// Converts universal color to set of bytes.
     fn universal_to_preferred(pixfmt: PixelFormat, color: u32) -> [u8; 4] {
         let pxo = Self::pixfmt_to_offset(pixfmt);
 
@@ -127,6 +138,7 @@ impl Image {
         out
     }
 
+	/// Makes an image from set of data
     pub fn from_raw_data(
         data: &[u8],
         width: usize,
@@ -141,6 +153,7 @@ impl Image {
         }
     }
 
+	/// Makes an image frok set of data (vectored)
     pub fn from_raw_data_vec(
         data: Vec<u8>,
         width: usize,
@@ -157,7 +170,7 @@ impl Image {
 
     /// Fills whole image with given color
     /// 
-    /// Color in `0xAARRGGBB` format
+    /// Color in universal format
     pub fn fill(&mut self, color: u32) {
         for y in 0..self.height {
             for x in 0..self.width {
@@ -166,26 +179,37 @@ impl Image {
         }
     }
 
+	/// Get width of the image
     pub fn width(&self) -> usize {
         self.width
     }
 
+	/// Get height of the image
     pub fn height(&self) -> usize {
         self.height
     }
 
+	/// Get number of BYTES per pixel
+	///
+	/// To get number of bits, shift result to left by 3:
+	/// ```
+	/// self.bytes_per_pixel() << 3
+	/// ```
     pub fn bytes_per_pixel(&self) -> usize {
         Self::pixfmt_to_bpp(self.pixel_format)
     }
 
+	/// Gets in-memory size of the image.
     pub fn size(&self) -> usize {
         self.width * self.height * Self::pixfmt_to_bpp(self.pixel_format)
     }
 
+	/// Gets immutable slice of raw pixel data
     pub fn data(&self) -> &[u8] {
         self.data.as_slice()
     }
-
+    
+	/// Gets mutable slice of raw pixel data
     pub fn data_mut(&mut self) -> &mut[u8] {
         self.data.as_mut_slice()
     }
@@ -195,7 +219,7 @@ impl Image {
         width * y + x
     }
 
-    /// Output format is `0xAARRGGBB`
+    /// Gets pixel from the image
     pub fn get_pixel(&self, x: usize, y: usize) -> Option<u32> {
         if x >= self.width || y >= self.height {
             return None;
@@ -208,7 +232,7 @@ impl Image {
         Some(color)
     }
 
-    /// Input format is `0xAARRGGBB`
+    /// Set pixel on the image
     pub fn set_pixel(&mut self, x: usize, y: usize, color: u32) {
         if x >= self.width || y >= self.height {
             return;
@@ -230,6 +254,8 @@ impl Image {
         }
     }
 
+	/// Scale the image to desired width and height.
+	/// It uses bilinear algorithm.
     pub fn scale(&mut self, target_width: usize, target_height: usize) {
         if target_width == self.width && target_height == self.height {
             return;
@@ -279,6 +305,7 @@ impl Image {
         self.data = scaled_data;
     }
 
+	/// Gets a whole row (line) at desired `y` coordinate.
     pub fn get_line(&self, line: usize) -> Option<&[u8]> {
         if line >= self.height {
             return None;
@@ -290,6 +317,7 @@ impl Image {
         Some(&self.data[idx..idx_end])
     }
 
+	/// Flips image vertically
     pub fn flip_vertically(&mut self) {
         let bpp = self.bytes_per_pixel();
         let stride = self.width * bpp;
@@ -309,6 +337,8 @@ impl Image {
         }
     }
 
+	/// Reverse pixels in desired line.
+	/// Used as subfunction of `Image::flip_horizontally`
     pub fn reverse_line(&mut self, line: usize) {
         if line >= self.height {
             return;
@@ -325,12 +355,14 @@ impl Image {
         }
     }
 
+	/// Flips image horizontally
     pub fn flip_horizontally(&mut self) {
         for i in 0..self.height() {
             self.reverse_line(i);
         }
     }
 
+	/// Cuts the image.
     pub fn cut(&mut self, x: usize, y: usize, width: usize, height: usize) {
         let mut new_image = Image::new(width, height, self.pixel_format);
 
@@ -345,6 +377,9 @@ impl Image {
         *self = new_image;
     }
 
+	/// If you want to scale the image, but preserve aspect ratio, 
+	/// and you're lazy to calculate target width and height,
+	/// `Image::scale_by_factor` will do it for you!
     pub fn scale_by_factor(&mut self, factor: f64) {
         let w = self.width() as f64 * factor;
         let h = self.height() as f64 * factor;
@@ -352,6 +387,7 @@ impl Image {
         self.scale(w as _, h as _);
     }
 
+	/// Gets a whole column of the image at desired `x` coordinate.
     fn get_column(&self, column: usize) -> Option<Vec<u8>> {
         if column >= self.width {
             return None;
@@ -370,7 +406,8 @@ impl Image {
 
         Some(result)
     }
-    
+
+    /// Rotate image to left
     pub fn rotate_left(&mut self) {
         let mut buffer: Vec<u8> = Vec::with_capacity(self.size());
 
@@ -385,6 +422,7 @@ impl Image {
         self.data = buffer;
     }
 
+	/// Rotate image to right
     pub fn rotate_right(&mut self) {
         let mut buffer: Vec<u8> = Vec::with_capacity(self.size());
 
@@ -400,7 +438,5 @@ impl Image {
         (self.width, self.height) = (self.height, self.width);
 
         self.data = buffer;
-
-        // self.flip_horizontally();
     }
 }
