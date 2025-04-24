@@ -10,8 +10,7 @@ fn main() {
 
     let data = std::fs::read(filename.unwrap()).unwrap();
 
-    let mut image = nimage::tga::from_tga_data(data.as_slice()).unwrap();
-    image.rotate_left();
+    let image = nimage::png::from_png_data(data.as_slice()).unwrap();
 
     println!("use `ffplay -f rawvideo -video_size {}x{} -pixel_format rgb24 -i out.bin`", image.width(), image.height());
     

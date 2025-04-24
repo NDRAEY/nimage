@@ -11,9 +11,11 @@ keywords = ["canvas", "image", "no_std"]
 exclude = ["static/*"]
 
 [features]
-default = ["tga", "std"]
+default = ["png", "tga", "std"]
 std = []
 tga = ["dep:tinytga"]
+png = ["dep:png"]
 
 [dependencies]
 tinytga = { version = "0.5.0", optional = true }
+png = { version = "0.17.16", optional = true }

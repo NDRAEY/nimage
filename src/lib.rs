@@ -7,6 +7,9 @@ use alloc::vec::Vec;
 #[cfg(feature = "tga")]
 pub mod tga;
 
+#[cfg(feature = "png")]
+pub mod png;
+
 #[derive(Copy, Clone)]
 pub enum PixelFormat {
     RGBA,
