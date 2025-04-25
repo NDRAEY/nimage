@@ -8,7 +8,8 @@ It's no_std compatible, but still depends on `alloc`.
 
 # Features
 
-- [x] TGA image import.
+- [x] TGA image import
+- [x] PNG image import (requires `std`)
 - [x] Drawing and getting pixels on image
 - [x] Resizing images (bilinear algorithm)
 - [x] Flipping images vertically and horizontally
