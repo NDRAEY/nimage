@@ -255,10 +255,12 @@ impl Image {
     }
 
 	/// Scale the image to desired width and height.
-	/// It uses bilinear algorithm.
-    pub fn scale(&mut self, target_width: usize, target_height: usize) {
+	/// Uses bilinear algorithm.
+    /// 
+    /// This variant doesn't copy original data, so use this if you want to avoid unnecessary `clone()`
+    pub fn scale_to_new(&self, target_width: usize, target_height: usize) -> Self {
         if target_width == self.width && target_height == self.height {
-            return;
+            return Self::clone(self);
         }
 
         let bpp = self.bytes_per_pixel();
@@ -300,9 +302,26 @@ impl Image {
             }
         }
 
-        self.width = target_width;
-        self.height = target_height;
-        self.data = scaled_data;
+        Self {
+            width: target_width,
+            height: target_height,
+            pixel_format: self.pixel_format,
+            data: scaled_data,
+        }
+    }
+
+	/// Scale the image to desired width and height.
+	/// Uses bilinear algorithm.
+    pub fn scale(&mut self, target_width: usize, target_height: usize) {
+        if target_width == self.width && target_height == self.height {
+            return;
+        }
+
+        let this = self.scale_to_new(target_width, target_height);
+
+        self.width = this.width;
+        self.height = this.height;
+        self.data = this.data;
     }
 
 	/// Gets a whole row (line) at desired `y` coordinate.
@@ -385,6 +404,13 @@ impl Image {
         let h = self.height() as f64 * factor;
 
         self.scale(w as _, h as _);
+    }
+
+    pub fn scale_by_factor_to_new(&self, factor: f64) -> Self {
+        let w = self.width() as f64 * factor;
+        let h = self.height() as f64 * factor;
+
+        self.scale_to_new(w as _, h as _)
     }
 
 	/// Gets a whole column of the image at desired `x` coordinate.
