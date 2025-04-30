@@ -23,11 +23,11 @@ pub fn from_tga_data(data: &[u8]) -> Option<Image> {
                 let r = (i.color >> 16) as u8;
                 let g = (i.color >> 8) as u8;
                 let b = i.color as u8;
-                let a = (i.color >> 24) as u8;
 
                 pixels.extend([r, g, b]);
 
                 if bpp == 32 {
+                    let a = (i.color >> 24) as u8;
                     pixels.push(a);
                 }
             }

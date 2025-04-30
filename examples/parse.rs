@@ -11,10 +11,10 @@ fn main() {
     let data = std::fs::read(filename.unwrap()).unwrap();
 
     let (_, mut image) = nimage::import::open(data.as_slice()).unwrap();
-    // image.rotate_left();
-    // image.scale_by_factor(0.5);
 
-    println!("use `ffplay -f rawvideo -video_size {}x{} -pixel_format rgb24 -i out.bin`", image.width(), image.height());
+    let bpp = image.pixel_format().bits_per_pixel();
+
+    println!("use `ffplay -f rawvideo -video_size {}x{} -pixel_format rgb{} -i out.bin`", image.width(), image.height(), bpp);
     
     {
         let mut file = std::fs::File::create("out.bin").unwrap();
