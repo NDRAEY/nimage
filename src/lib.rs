@@ -13,7 +13,7 @@ pub mod png;
 pub mod import;
 
 /// An enumeration of supported pixel formats.
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum PixelFormat {
     RGBA,
     ARGB,
