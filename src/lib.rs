@@ -26,7 +26,7 @@ pub enum PixelFormat {
 impl PixelFormat {
     /// Converts pixel format to channel count
     #[inline]
-    pub fn channel_count(&self) -> usize {
+    pub const fn channel_count(&self) -> usize {
         match self {
             PixelFormat::RGBA => 4,
             PixelFormat::ARGB => 4,
@@ -41,14 +41,14 @@ impl PixelFormat {
     /// Get number of BITS per pixel
     ///
     #[inline]
-    pub fn bits_per_pixel(&self) -> usize {
+    pub const fn bits_per_pixel(&self) -> usize {
         self.channel_count() << 3
     }
 
     /// Generates offsets for desired pixel format.
     /// It's used to build an universal colors from image data.
     /// To convert to `0xAARRGGBB`
-    pub fn offsets(&self) -> PixelFormatOffset {
+    pub const fn offsets(&self) -> PixelFormatOffset {
         match self {
             PixelFormat::RGBA => PixelFormatOffset {
                 a: Some(0),
@@ -120,7 +120,7 @@ impl Image {
     }
 
     /// Converts pixel color data to universal color.
-    fn convert_to_universal(pixfmt: PixelFormat, color: &[u8]) -> u32 {
+    const fn convert_to_universal(pixfmt: PixelFormat, color: &[u8]) -> u32 {
         let pxo = pixfmt.offsets();
 
         let mut outcolor = 0u32;
@@ -177,7 +177,7 @@ impl Image {
     }
 
     /// Makes an image frok set of data (vectored)
-    pub fn from_raw_data_vec(
+    pub const fn from_raw_data_vec(
         data: Vec<u8>,
         width: usize,
         height: usize,
@@ -203,17 +203,17 @@ impl Image {
     }
 
     /// Get width of the image
-    pub fn width(&self) -> usize {
+    pub const fn width(&self) -> usize {
         self.width
     }
 
     /// Get height of the image
-    pub fn height(&self) -> usize {
+    pub const fn height(&self) -> usize {
         self.height
     }
 
     /// Gets in-memory size of the image.
-    pub fn size(&self) -> usize {
+    pub const fn size(&self) -> usize {
         self.width * self.height * self.pixel_format.channel_count()
     }
 
@@ -228,7 +228,7 @@ impl Image {
     }
 
     #[inline]
-    fn pixel_index(width: usize, x: usize, y: usize) -> usize {
+    const fn pixel_index(width: usize, x: usize, y: usize) -> usize {
         width * y + x
     }
 
@@ -477,7 +477,7 @@ impl Image {
     }
 
     #[inline]
-    pub fn pixel_format(&self) -> &PixelFormat {
+    pub const fn pixel_format(&self) -> &PixelFormat {
         &self.pixel_format
     }
 }
