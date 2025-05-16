@@ -14,6 +14,8 @@ fn main() {
 
     let bpp = image.pixel_format().bits_per_pixel();
 
+    println!("Pixel format: {:?}", image.pixel_format());
+
     println!("use `ffplay -f rawvideo -video_size {}x{} -pixel_format rgb{} -i out.bin`", image.width(), image.height(), bpp);
     
     {
