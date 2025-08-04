@@ -241,6 +241,7 @@ impl Image {
         let idx = Self::pixel_index(self.width, x, y);
         let start_idx = idx * self.pixel_format.channel_count();
         let end_idx = (idx + 1) * self.pixel_format.channel_count();
+
         let data = &self.data()[start_idx..end_idx];
         let color = Self::convert_to_universal(self.pixel_format, data);
 
